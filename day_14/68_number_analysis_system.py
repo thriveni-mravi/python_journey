@@ -1,7 +1,7 @@
 try:
     digit=input("enter multidigit number:")
-    if digit==" "or "-" in digit:
-        print("enter atleat one positive integer value")
+    if not digit.isdigit():
+        print("enter positive integer value")
         
     sum1=0
     for i in digit:
