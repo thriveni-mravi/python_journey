@@ -12,14 +12,22 @@ def add_student_info(stud):
     print("enter students details")
     while n>0:
         while True:
+            usn=input("enter usn:").lower()
+            if not usn.isalpha() and not usn.isdigit() and usn.isalnum()==True and len(usn)==5:
+                break
+            else:
+                print("enter correct usn")
+        while True:
             name=input("student name:")
-            if name.isalpha()==True:
+            if name.isalpha()==True or " " in name:
                 break
             else:
                 print("enter string value for name.")
 
-        if name not in stud:
-            stud[name]={}
+        if usn not in stud:
+            stud[usn]={}
+            stud[usn]["name"]=name
+            stud[usn]["subjects"]={}
             for i in range(subj):
                 while True:
                     while True:
@@ -28,27 +36,14 @@ def add_student_info(stud):
                             break
                         else:
                             print("enter string value for sub.")
-                    if sub in stud[name]:
+                    if sub in stud[usn]["subjects"]:
                         print(sub,"is already exist! enter another sub.")
                     else:
                         break
-                while True:
-                    marks=input("marks: (enter ab if student absent)").lower()
-                    if marks=="ab":
-                        stud[name][sub]=None
-                        break
-                    try:
-                        marks=float(marks)
-                        if marks>=0 and marks<=100:
-                            stud[name][sub]=marks
-                            break
-                        else:
-                            print("marks must greaterthan or equal to zero and lessthan or equal to 100")
-                    except ValueError:
-                        print("enter valid marks or if student absent then enter ab !")
+                get_valid_marks(stud,usn,sub)
             n-=1
         else:
-            print(name ,"is already exist! check the student name again")
+            print(usn ,"is already exist! check the student usn again")
         
 
 
@@ -58,22 +53,23 @@ def display_student_info(stud):
         print("student details are not added yet!")
     else:
         for key in stud:
-            print("student name:",key)
-            for k in stud[key]:
-                if stud[key][k]==None:
+            print("usn   :",key)
+            print("name  :",stud[key]["name"])
+            for k in stud[key]["subjects"]:
+                if stud[key]["subjects"][k]==None:
                     print(k," marks not available")
                 else:
-                    print(k,"-",stud[key][k])
+                    print(k  ,"-", stud[key]["subjects"][k])
 
 def search_student_details(req_stud,stud):
     if req_stud in stud:
         print("student details found:")
-        print("student name:",req_stud)
-        for k in stud[req_stud]:
-            if stud[req_stud][k]==None:
-                print(k,"marks not available")
+        print("student name:",stud[req_stud]["name"])
+        for k in stud[req_stud]["subjects"]:
+            if stud[req_stud]["subjects"][k]==None:
+                print(k," marks not available")
             else:
-                print(k,"-",stud[req_stud][k])
+                print(k ,"-",stud[req_stud]["subjects"][k])
                 
     else:
         print("student details not found")
@@ -86,9 +82,9 @@ def class_average(stud):
         sum_of_marks=0
         num_of_marks=0
         for key in stud:
-            for k in stud[key]:
-                if stud[key][k]!=None:
-                    sum_of_marks+=stud[key][k]
+            for k in stud[key]["subjects"]:
+                if stud[key]["subjects"][k]!=None:
+                    sum_of_marks+=stud[key]["subjects"][k]
                     num_of_marks+=1
         if num_of_marks>0:
             class_average=sum_of_marks/num_of_marks
@@ -96,58 +92,66 @@ def class_average(stud):
         else:
             print("no marks avilable")
 
+def get_valid_marks(stud,usn,sub):
+        while True:
+            marks=input("enter marks: (enter ab if student absent)").lower()
+            if marks=="ab":
+                stud[usn]["subjects"][sub]=None
+                break
+            try:
+                marks=float(marks)
+                if marks>=0 and marks<=100:
+                    stud[usn]["subjects"][sub]=marks
+                    break
+                else:
+                    print("marks must greaterthan or equal to zero and lessthan or equal to 100")
+            except ValueError:
+                print("enter valid marks or if student absent then enter ab !")
+            
+        
 def update_student_details(stud):
     if not stud:
         print("No student details available!")
         return
-    name=input("student name:")
-    search_student_details(name,stud)
-    if name in stud:
-        while True:
-            print("which sub marks u want to update:")
-            sub=input()
-            if sub in stud[name]:
-                while True:
-                    marks=input("enter updated marks: (enter ab if student absent)").lower()
-                    if marks=="ab":
-                        stud[name][sub]=None
-                        break
-                    try:
-                        marks=float(marks)
-                        if marks>=0 and marks<=100:
-                            stud[name][sub]=marks
-                            break
-                        else:
-                            print("marks must greaterthan or equal to zero and lessthan or equal to 100")
-                    except ValueError:
-                        print("enter valid marks or if student absent then enter ab !")
-                break
-            else:
-                print("sub not found!")
+    usn=input("student usn:").lower()
+    search_student_details(usn,stud)
+    if usn in stud:
+            while True:
+                print("which sub marks u want to update:")
+                sub=input()
+                if sub in stud[usn]["subjects"]:
+                    get_valid_marks(stud,usn,sub)
+                    break
+                else:
+                    print("sub not found! ")
+
     else:
         print("add the student details before trying to update")
 
 def delete_student_detail(stud):
-    print("enter student name to delete details:")
-    name=input()
-    if name in stud:
-        del stud[name]
-        print(name," details are deleted successfully")
+    if not stud:
+        print("No student details available!")
+        return
+    print("enter student usn to delete details:")
+    usn=input().lower()
+    if usn in stud:
+        del stud[usn]
+        print(usn," details are deleted successfully")
     else:
-        print(name," not found")
+        print(usn," not found")
 
 def individual_student_report(stud):
-    name=input("enter student name:")
-    search_student_details(name,stud)
-    if name in stud:
+    usn=input("enter student usn:")
+    search_student_details(usn,stud)
+    if usn in stud:
         total=0
         num_of_sub_absent=0
         num_of_sub_attended=0
         
-        num_sub=len(stud[name])
-        for sub in stud[name]:
-            if stud[name][sub]!=None:
-                total+=stud[name][sub]
+        num_sub=len(stud[usn]["subjects"])
+        for sub in stud[usn]["subjects"]:
+            if stud[usn]["subjects"][sub]!=None:
+                total+=stud[usn]["subjects"][sub]
                 num_of_sub_attended+=1
                 
             else:
@@ -160,7 +164,7 @@ def individual_student_report(stud):
         print("number of subjects attended for exam:",num_of_sub_attended)
         print("number of subjects not attended for exam:",num_of_sub_absent)
 
-        attended = {key: value for key, value in stud[name].items() if value!=None}
+        attended = {key: value for key, value in stud[usn]["subjects"].items() if value!=None}
         if attended:
             highest_scored_sub=max(attended,key=lambda sub:attended[sub])
             lowest_scored_sub=min(attended,key=lambda sub:attended[sub])
@@ -174,12 +178,12 @@ def student_ranking_list(stud):
     if not stud:
         print("No student details available!")
         return
-    for name in stud:
+    for usn in stud:
         total=0
-        for sub in stud[name]:
-            if stud[name][sub]!=None:
-                total+=stud[name][sub]
-        ranking[name]=total
+        for sub in stud[usn]["subjects"]:
+            if stud[usn]["subjects"][sub]!=None:
+                total+=stud[usn]["subjects"][sub]
+        ranking[usn]=total
     order_of_ranking=dict(sorted(ranking.items(), key=lambda item:item[1],reverse=True))
     print("Ranking of students according to the total marks")
     for key in order_of_ranking:
@@ -207,7 +211,7 @@ while True:
             case 2: 
                 display_student_info(stud)
             case 3:
-                req_stud=input("enter student name:")
+                req_stud=input("enter student usn:").lower()
                 search_student_details(req_stud,stud)
             case 4:
                 class_average(stud)
